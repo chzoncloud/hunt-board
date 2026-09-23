@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>กระดานล่าโรงงานโลหะ</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏭</text></svg>">
+<style>
+  :root{
+    --bg:#0f1115; --card:#1a1d24; --card2:#22262f; --line:#2e333d;
+    --text:#f0f2f5; --dim:#a6adbb; --gold:#e8b339;
+    --ok:#3ecf7e; --no:#6b7280;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{margin:0;background:var(--bg);color:var(--text);
+    font-family:"Segoe UI",system-ui,-apple-system,"Noto Sans Thai",sans-serif;
+    font-size:19px;line-height:1.6;padding-bottom:24px}
+  header{position:sticky;top:0;z-index:20;background:#0f1115ee;backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--line);padding:14px 16px 10px}
+  h1{margin:0 0 2px;font-size:29px;font-weight:800;letter-spacing:-.3px;color:var(--gold)}
+  .me{font-size:15px;color:var(--dim);margin-bottom:10px}
+  .me a{color:var(--gold);cursor:pointer;text-decoration:underline}
+  .zones{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;scrollbar-width:none}
+  .zones::-webkit-scrollbar{display:none}
+  .zbtn{flex:0 0 auto;background:var(--card2);color:var(--text);border:1px solid var(--line);
+    border-radius:999px;padding:9px 16px;font-size:16px;cursor:pointer;white-space:nowrap;font-family:inherit}
+  .zbtn.on{background:var(--gold);color:#1a1200;border-color:var(--gold);font-weight:700}
+  .tools{display:flex;gap:8px;margin-top:10px}
+  input[type=search]{flex:1;background:var(--card2);border:1px solid var(--line);color:var(--text);
+    border-radius:10px;padding:10px 14px;font-size:17px;font-family:inherit}
+  .filt{background:var(--card2);border:1px solid var(--line);color:var(--dim);
+    border-radius:10px;padding:10px 12px;font-size:15px;cursor:pointer;font-family:inherit}
+  .filt.on{border-color:var(--gold);color:var(--gold)}
+  .bar{margin:14px 16px 0;padding:12px 14px;background:#1d2530;border:1px solid #2f3a48;
+    border-radius:10px;font-size:16px;color:#cfd6e0}
+  .bar b{color:var(--gold)}
+  main{padding:12px 16px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px}
+  .card.touched{border-color:#3b5a44}
+  .card.done{opacity:.5}
+  .name{font-size:20px;font-weight:700;margin:0 0 4px;line-height:1.35}
+  .area{font-size:16px;color:var(--gold);margin-bottom:8px}
+  .w{font-size:16px;color:#d5dae2;margin-bottom:6px}
+  .m{font-size:15px;color:var(--dim);margin-bottom:12px}
+  .m b{color:#ffd77a;font-weight:600}
+  .badges{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+  .b{font-size:14px;padding:4px 10px;border-radius:999px;font-weight:600}
+  .b.robot{background:#3b2f00;color:#ffd35c}
+  .b.jp{background:#3a1420;color:#ff9db0}
+  .b.brand{background:#132c3a;color:#7fd4ff}
+  .b.warn{background:#3d1414;color:#ff8f8f}
+  .acts{display:flex;gap:10px;margin-bottom:12px}
+  .call{flex:1;display:block;text-align:center;background:var(--ok);color:#04220f;
+    font-weight:800;font-size:19px;padding:13px;border-radius:10px;text-decoration:none}
+  .call.none{background:var(--card2);color:var(--dim);font-weight:600}
+  .web{flex:0 0 auto;background:var(--card2);color:var(--dim);border:1px solid var(--line);
+    padding:13px 18px;border-radius:10px;text-decoration:none;font-size:17px}
+  .status{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+  .s{flex:1 1 auto;background:transparent;border:1px solid var(--line);color:var(--dim);
+    border-radius:8px;padding:9px 6px;font-size:15px;cursor:pointer;font-family:inherit;min-width:72px}
+  .s.on{background:var(--gold);color:#1a1200;border-color:var(--gold);font-weight:700}
+  .s.on[data-v="ไม่ติด"]{background:var(--no);color:#fff;border-color:var(--no)}
+  .s.on[data-v="สั่งแล้ว"]{background:var(--ok);color:#04220f;border-color:var(--ok)}
+  .s.on[data-v="ไม่เอา"]{background:#4a2020;color:#ff9f9f;border-color:#6b2c2c}
+  textarea{width:100%;background:var(--card2);border:1px solid var(--line);color:var(--text);
+    border-radius:10px;padding:11px 13px;font-size:16px;font-family:inherit;resize:vertical;min-height:58px}
+  .stamp{font-size:14px;color:var(--dim);margin-top:8px}
+  .stamp b{color:#8fd6a6}
+  .saving{color:var(--gold)}
+  .empty,.load{text-align:center;color:var(--dim);padding:40px 16px;font-size:18px}
+  .err{color:#ff9f9f}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>กระดานล่าโรงงานโลหะ</h1>
+  <div class="me">คุณคือ <a id="who">—</a> · <a id="reload">รีเฟรช</a></div>
+  <div class="zones" id="zones"></div>
+  <div class="tools">
+    <input type="search" id="q" placeholder="ค้นชื่อ / พื้นที่ / เครื่องจักร">
+    <button class="filt" id="fHot">เด่น</button>
+    <button class="filt" id="fLeft">ยังไม่เข้า</button>
+  </div>
+</header>
+
+<div class="bar" id="bar">กำลังโหลด…</div>
+<main id="list"><div class="load">กำลังดึงข้อมูลจาก Google Sheet…</div></main>
+
+<script>
+// ===== ที่อยู่ของ Google Apps Script (ลงท้าย /exec) =====
+var API = "https://script.google.com/macros/s/AKfycbzW3T6Lhi1Ez1CcNUHOFESSmRA30m02XfniDAkJ87CvC_2n2z3C55e5ndDXRh5BJKzuXw/exec";
+
+var DATA = { targets: [], results: {} };
+var zone = "all", hotOnly = false, leftOnly = false;
+var STATUS = ["ไม่ติด","คุยแล้ว","ส่งตัวอย่าง","สั่งแล้ว","ไม่เอา"];
+var BADGE = {
+  robot:{t:"⭐ หุ่นยนต์เชื่อม",c:"robot"},
+  jp:{t:"🏭 ทุนต่างชาติ",c:"jp"},
+  brand:{t:"🔧 รู้แบรนด์เครื่อง",c:"brand"},
+  warn:{t:"⚠️ ไม่ใช่ลูกค้า",c:"warn"}
+};
+
+function ls(k, v){
+  try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); }
+  catch(e){ return null; }
+}
+function me(){
+  var n = ls("mb_who") || "";
+  if (!n) { n = window.prompt("ใส่ชื่อคุณ (จะได้รู้ว่าใครเป็นคนบันทึก)", "") || "ไม่ระบุชื่อ"; ls("mb_who", n); }
+  return n;
+}
+document.getElementById("who").textContent = me();
+document.getElementById("who").onclick = function(){
+  var n = window.prompt("เปลี่ยนชื่อ", me());
+  if (n) { ls("mb_who", n); this.textContent = n; }
+};
+document.getElementById("reload").onclick = function(){ load(); };
+document.getElementById("fHot").onclick = function(){
+  hotOnly = !hotOnly; this.className = "filt" + (hotOnly ? " on" : ""); render();
+};
+document.getElementById("fLeft").onclick = function(){
+  leftOnly = !leftOnly; this.className = "filt" + (leftOnly ? " on" : ""); render();
+};
+document.getElementById("q").oninput = render;
+
+function call(params){
+  var qs = Object.keys(params).map(function(k){
+    return encodeURIComponent(k) + "=" + encodeURIComponent(params[k]);
+  }).join("&");
+  return fetch(API + "?" + qs).then(function(r){ return r.json(); });
+}
+
+function load(){
+  document.getElementById("bar").textContent = "กำลังโหลด…";
+  call({ action: "list", t: Date.now() })
+    .then(function(d){
+      if (!d.ok) throw new Error(d.error || "ไม่ทราบสาเหตุ");
+      DATA = d; buildZones(); render();
+    })
+    .catch(function(e){
+      document.getElementById("bar").innerHTML = '<span class="err">เชื่อมต่อไม่ได้</span>';
+      document.getElementById("list").innerHTML =
+        '<div class="empty err">โหลดข้อมูลไม่ได้: ' + (e.message || e) + '<br><br>' +
+        'ลองกดรีเฟรชอีกครั้ง หรือเช็คว่าเน็ตติดอยู่ไหม</div>';
+    });
+}
+
+function buildZones(){
+  var zc = document.getElementById("zones");
+  if (zc.getAttribute("data-built")) return;
+  zc.setAttribute("data-built", "1");
+  var names = [], seen = {};
+  DATA.targets.forEach(function(t){ if (t.zone && !seen[t.zone]) { seen[t.zone] = 1; names.push(t.zone); } });
+  mkZ(zc, "all", "ทั้งหมด", DATA.targets.length);
+  names.forEach(function(n){
+    mkZ(zc, n, n, DATA.targets.filter(function(t){ return t.zone === n; }).length);
+  });
+}
+function mkZ(zc, id, label, count){
+  var b = document.createElement("button");
+  b.className = "zbtn" + (id === zone ? " on" : "");
+  b.textContent = label + " (" + count + ")";
+  b.onclick = function(){
+    zone = id;
+    var kids = zc.children;
+    for (var i = 0; i < kids.length; i++) kids[i].className = "zbtn";
+    b.className = "zbtn on";
+    render();
+  };
+  zc.appendChild(b);
+}
+
+function visible(){
+  var term = document.getElementById("q").value.trim().toLowerCase();
+  return DATA.targets.filter(function(t){
+    if (zone !== "all" && t.zone !== zone) return false;
+    if (hotOnly && t.f.indexOf("robot") < 0 && t.f.indexOf("jp") < 0) return false;
+    var r = DATA.results[t.id];
+    if (leftOnly && r && r.status) return false;
+    if (term) {
+      var hay = (t.n + " " + t.a + " " + t.w + " " + t.m).toLowerCase();
+      if (hay.indexOf(term) < 0) return false;
+    }
+    return true;
+  });
+}
+
+function render(){
+  var rows = visible(), list = document.getElementById("list");
+  list.innerHTML = "";
+
+  var all = DATA.targets, done = 0, counts = {};
+  all.forEach(function(t){
+    var r = DATA.results[t.id];
+    if (r && r.status) { done++; counts[r.status] = (counts[r.status] || 0) + 1; }
+  });
+  document.getElementById("bar").innerHTML =
+    "เข้าไปแล้ว <b>" + done + "</b> / " + all.length + " โรงงาน" +
+    " · คุยแล้ว <b>" + (counts["คุยแล้ว"] || 0) + "</b>" +
+    " · ส่งตัวอย่าง <b>" + (counts["ส่งตัวอย่าง"] || 0) + "</b>" +
+    " · สั่งแล้ว <b>" + (counts["สั่งแล้ว"] || 0) + "</b>" +
+    "<br><span style='color:#a6adbb'>แสดงอยู่ " + rows.length + " รายการ</span>";
+
+  if (!rows.length) { list.innerHTML = '<div class="empty">ไม่มีรายการตามที่กรอง</div>'; return; }
+
+  rows.forEach(function(t){
+    var r = DATA.results[t.id] || {};
+    var card = document.createElement("div");
+    card.className = "card" + (r.status ? " touched" : "") +
+      (r.status === "สั่งแล้ว" || r.status === "ไม่เอา" ? " done" : "");
+
+    var badges = "";
+    t.f.forEach(function(f){ if (BADGE[f]) badges += '<span class="b ' + BADGE[f].c + '">' + BADGE[f].t + '</span>'; });
+
+    var phone = t.p
+      ? '<a class="call" href="tel:' + String(t.p).replace(/[^0-9+]/g,"") + '">📞 ' + t.p + '</a>'
+      : '<span class="call none">ยังไม่มีเบอร์ — ต้องขุด</span>';
+    var web = t.u ? '<a class="web" href="' + t.u + '" target="_blank" rel="noopener">เว็บ</a>' : "";
+
+    card.innerHTML =
+      '<div class="name">' + t.n + '</div>' +
+      '<div class="area">📍 ' + t.a + '</div>' +
+      (badges ? '<div class="badges">' + badges + '</div>' : '') +
+      '<div class="w">' + t.w + '</div>' +
+      (t.m && t.m !== "-" ? '<div class="m">เครื่องจักร: <b>' + t.m + '</b></div>' : '') +
+      '<div class="acts">' + phone + web + '</div>' +
+      '<div class="status"></div>' +
+      '<textarea placeholder="โน้ต — คุยกับใคร ใช้ยี่ห้ออะไรอยู่ นัดเมื่อไหร่"></textarea>' +
+      '<div class="stamp"></div>';
+
+    var stamp = card.querySelector(".stamp");
+    var ta = card.querySelector("textarea");
+    ta.value = r.note || "";
+
+    function showStamp(){
+      var rr = DATA.results[t.id] || {};
+      stamp.innerHTML = rr.who ? ("บันทึกโดย <b>" + rr.who + "</b> · " + (rr.at || "")) : "";
+    }
+    showStamp();
+
+    function save(status, note){
+      stamp.innerHTML = '<span class="saving">กำลังบันทึก…</span>';
+      call({ action: "save", id: t.id, name: t.n, status: status, note: note, who: me() })
+        .then(function(res){
+          if (!res.ok) throw new Error(res.error || "");
+          DATA.results[t.id] = { status: status, note: note, who: me(), at: res.at };
+          render();
+        })
+        .catch(function(){ stamp.innerHTML = '<span class="err">บันทึกไม่สำเร็จ ลองใหม่</span>'; });
+    }
+
+    var sc = card.querySelector(".status");
+    STATUS.forEach(function(v){
+      var b = document.createElement("button");
+      b.className = "s" + (r.status === v ? " on" : "");
+      b.setAttribute("data-v", v);
+      b.textContent = v;
+      b.onclick = function(){
+        var cur = (DATA.results[t.id] || {}).status;
+        save(cur === v ? "" : v, ta.value);
+      };
+      sc.appendChild(b);
+    });
+
+    var timer = null;
+    ta.oninput = function(){
+      clearTimeout(timer);
+      timer = setTimeout(function(){
+        save((DATA.results[t.id] || {}).status || "", ta.value);
+      }, 1500);
+    };
+
+    list.appendChild(card);
+  });
+}
+
+load();
+setInterval(load, 60000);
+</script>
+</body>
+</html>
