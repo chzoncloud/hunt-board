@@ -69,6 +69,16 @@
   .saving{color:var(--gold)}
   .empty,.load{text-align:center;color:var(--dim);padding:40px 16px;font-size:18px}
   .err{color:#ff9f9f}
+  .mask{position:fixed;inset:0;z-index:99;background:#0f1115f2;display:flex;
+    align-items:center;justify-content:center;padding:24px}
+  .ask{background:var(--card);border:1px solid var(--line);border-radius:16px;
+    padding:24px;width:100%;max-width:420px}
+  .ask h2{margin:0 0 6px;font-size:23px;color:var(--gold)}
+  .ask p{margin:0 0 16px;font-size:16px;color:var(--dim)}
+  .ask input{width:100%;background:var(--card2);border:1px solid var(--line);color:var(--text);
+    border-radius:10px;padding:13px 15px;font-size:18px;font-family:inherit;margin-bottom:14px}
+  .ask button{width:100%;background:var(--gold);color:#1a1200;border:0;border-radius:10px;
+    padding:14px;font-size:18px;font-weight:800;font-family:inherit;cursor:pointer}
 </style>
 </head>
 <body>
@@ -105,16 +115,36 @@ function ls(k, v){
   try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); }
   catch(e){ return null; }
 }
-function me(){
-  var n = ls("mb_who") || "";
-  if (!n) { n = window.prompt("ใส่ชื่อคุณ (จะได้รู้ว่าใครเป็นคนบันทึก)", "") || "ไม่ระบุชื่อ"; ls("mb_who", n); }
-  return n;
+function me(){ return ls("mb_who") || "ไม่ระบุชื่อ"; }
+
+function askName(force){
+  if (!force && ls("mb_who")) return;
+  var mask = document.createElement("div");
+  mask.className = "mask";
+  mask.innerHTML =
+    '<div class="ask">' +
+      '<h2>คุณชื่ออะไร</h2>' +
+      '<p>ใส่ชื่อไว้ เพื่อให้รู้ว่าใครเป็นคนบันทึกผลแต่ละเจ้า</p>' +
+      '<input type="text" id="nameIn" placeholder="เช่น ตั้ม" autocomplete="name">' +
+      '<button id="nameOk">เริ่มใช้งาน</button>' +
+    '</div>';
+  document.body.appendChild(mask);
+  var input = mask.querySelector("#nameIn");
+  input.value = ls("mb_who") || "";
+  setTimeout(function(){ try { input.focus(); } catch(e){} }, 100);
+  function done(){
+    var v = (input.value || "").trim() || "ไม่ระบุชื่อ";
+    ls("mb_who", v);
+    document.getElementById("who").textContent = v;
+    document.body.removeChild(mask);
+  }
+  mask.querySelector("#nameOk").onclick = done;
+  input.onkeydown = function(e){ if (e.key === "Enter") done(); };
 }
+
 document.getElementById("who").textContent = me();
-document.getElementById("who").onclick = function(){
-  var n = window.prompt("เปลี่ยนชื่อ", me());
-  if (n) { ls("mb_who", n); this.textContent = n; }
-};
+document.getElementById("who").onclick = function(){ askName(true); };
+askName(false);
 document.getElementById("reload").onclick = function(){ load(); };
 document.getElementById("fHot").onclick = function(){
   hotOnly = !hotOnly; this.className = "filt" + (hotOnly ? " on" : ""); render();
