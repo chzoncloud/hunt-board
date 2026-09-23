@@ -10,7 +10,7 @@
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#0f1115">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
 <meta name="apple-mobile-web-app-title" content="MKIS hunter">
 <style>
   :root{
@@ -21,11 +21,18 @@
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   body{margin:0;background:var(--bg);color:var(--text);
     font-family:"Segoe UI",system-ui,-apple-system,"Noto Sans Thai",sans-serif;
-    font-size:18px;line-height:1.55;padding-bottom:30px}
+    font-size:18px;line-height:1.55;
+    /* กันโดน Dynamic Island / รอยบาก / แถบโฮมบัง */
+    padding-bottom:calc(30px + env(safe-area-inset-bottom, 0px))}
 
   /* ---------- header แบบบาง ---------- */
   header{position:sticky;top:0;z-index:30;background:#0f1115f2;backdrop-filter:blur(10px);
-    border-bottom:1px solid var(--line);padding:8px 14px 9px;transition:transform .22s ease}
+    border-bottom:1px solid var(--line);transition:transform .22s ease;
+    padding:calc(10px + env(safe-area-inset-top, 0px)) calc(14px + env(safe-area-inset-right, 0px))
+            9px calc(14px + env(safe-area-inset-left, 0px))}
+  @supports (padding-top: env(safe-area-inset-top)) {
+    header{ padding-top: max(10px, env(safe-area-inset-top)); }
+  }
   header.hide{transform:translateY(-102%)}
   .top{display:flex;align-items:center;gap:10px}
   .logo{width:32px;height:32px;border-radius:8px;flex:0 0 auto}
@@ -46,11 +53,12 @@
   .chip.on{background:var(--gold);color:#1a1200;border-color:var(--gold);font-weight:700}
   .chip.mineon{background:var(--mine);color:#04182e;border-color:var(--mine);font-weight:700}
 
-  .bar{padding:9px 14px;font-size:15px;color:#cfd6e0;background:#151922;border-bottom:1px solid var(--line)}
+  .bar{font-size:15px;color:#cfd6e0;background:#151922;border-bottom:1px solid var(--line);
+    padding:9px calc(14px + env(safe-area-inset-right, 0px)) 9px calc(14px + env(safe-area-inset-left, 0px))}
   .bar b{color:var(--gold)}
 
   /* ---------- รายการแบบย่อ ---------- */
-  main{padding:8px 12px}
+  main{padding:8px calc(12px + env(safe-area-inset-right, 0px)) 8px calc(12px + env(safe-area-inset-left, 0px))}
   .item{background:var(--card);border:1px solid var(--line);border-radius:12px;margin-bottom:8px;overflow:hidden}
   .item.open{border-color:#4a5262}
   .item.mine{border-left:4px solid var(--mine)}
