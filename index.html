@@ -84,8 +84,9 @@
 <body>
 
 <header>
-  <h1>กระดานล่าโรงงานโลหะ</h1>
+  <h1>กระดานล่าลูกค้า</h1>
   <div class="me">คุณคือ <a id="who">—</a> · <a id="reload">รีเฟรช</a></div>
+  <div class="zones" id="groups"></div>
   <div class="zones" id="zones"></div>
   <div class="tools">
     <input type="search" id="q" placeholder="ค้นชื่อ / พื้นที่ / เครื่องจักร">
@@ -102,7 +103,7 @@
 var API = "https://script.google.com/macros/s/AKfycbzW3T6Lhi1Ez1CcNUHOFESSmRA30m02XfniDAkJ87CvC_2n2z3C55e5ndDXRh5BJKzuXw/exec";
 
 var DATA = { targets: [], results: {} };
-var zone = "all", hotOnly = false, leftOnly = false;
+var group = "all", zone = "all", hotOnly = false, leftOnly = false;
 var STATUS = ["ไม่ติด","คุยแล้ว","ส่งตัวอย่าง","สั่งแล้ว","ไม่เอา"];
 var BADGE = {
   robot:{t:"⭐ หุ่นยนต์เชื่อม",c:"robot"},
@@ -171,7 +172,7 @@ function load(){
   call({ action: "list", t: Date.now() })
     .then(function(d){
       if (!d.ok) throw new Error(d.error || "ไม่ทราบสาเหตุ");
-      DATA = d; buildZones(); render();
+      DATA = d; buildGroups();
     })
     .catch(function(e){
       document.getElementById("bar").innerHTML = '<span class="err">เชื่อมต่อไม่ได้</span>';
@@ -181,34 +182,57 @@ function load(){
     });
 }
 
+function uniq(key, rows){
+  var out = [], seen = {};
+  rows.forEach(function(t){ if (t[key] && !seen[t[key]]) { seen[t[key]] = 1; out.push(t[key]); } });
+  return out;
+}
+
+function buildGroups(){
+  var gc = document.getElementById("groups");
+  if (gc.getAttribute("data-built")) return;
+  gc.setAttribute("data-built", "1");
+  var names = uniq("group", DATA.targets);
+  if (names.length < 2) { gc.style.display = "none"; buildZones(); return; }
+  mkBtn(gc, "ทั้งหมด", DATA.targets.length, true, function(){ group = "all"; buildZones(); });
+  names.forEach(function(n){
+    var c = DATA.targets.filter(function(t){ return t.group === n; }).length;
+    mkBtn(gc, n, c, false, function(){ group = n; buildZones(); });
+  });
+  buildZones();
+}
+
 function buildZones(){
   var zc = document.getElementById("zones");
-  if (zc.getAttribute("data-built")) return;
-  zc.setAttribute("data-built", "1");
-  var names = [], seen = {};
-  DATA.targets.forEach(function(t){ if (t.zone && !seen[t.zone]) { seen[t.zone] = 1; names.push(t.zone); } });
-  mkZ(zc, "all", "ทั้งหมด", DATA.targets.length);
+  zc.innerHTML = "";
+  zone = "all";
+  var rows = DATA.targets.filter(function(t){ return group === "all" || t.group === group; });
+  var names = uniq("zone", rows);
+  mkBtn(zc, "ทุกโซน", rows.length, true, function(){ zone = "all"; render(); });
   names.forEach(function(n){
-    mkZ(zc, n, n, DATA.targets.filter(function(t){ return t.zone === n; }).length);
+    var c = rows.filter(function(t){ return t.zone === n; }).length;
+    mkBtn(zc, n, c, false, function(){ zone = n; render(); });
   });
+  render();
 }
-function mkZ(zc, id, label, count){
+
+function mkBtn(box, label, count, on, fn){
   var b = document.createElement("button");
-  b.className = "zbtn" + (id === zone ? " on" : "");
+  b.className = "zbtn" + (on ? " on" : "");
   b.textContent = label + " (" + count + ")";
   b.onclick = function(){
-    zone = id;
-    var kids = zc.children;
+    var kids = box.children;
     for (var i = 0; i < kids.length; i++) kids[i].className = "zbtn";
     b.className = "zbtn on";
-    render();
+    fn();
   };
-  zc.appendChild(b);
+  box.appendChild(b);
 }
 
 function visible(){
   var term = document.getElementById("q").value.trim().toLowerCase();
   return DATA.targets.filter(function(t){
+    if (group !== "all" && t.group !== group) return false;
     if (zone !== "all" && t.zone !== zone) return false;
     if (hotOnly && !t.f.some(function(x){ return HOT.indexOf(x) >= 0; })) return false;
     var r = DATA.results[t.id];
@@ -225,7 +249,8 @@ function render(){
   var rows = visible(), list = document.getElementById("list");
   list.innerHTML = "";
 
-  var all = DATA.targets, done = 0, counts = {};
+  var all = DATA.targets.filter(function(t){ return group === "all" || t.group === group; });
+  var done = 0, counts = {};
   all.forEach(function(t){
     var r = DATA.results[t.id];
     if (r && r.status) { done++; counts[r.status] = (counts[r.status] || 0) + 1; }
