@@ -108,8 +108,13 @@ var BADGE = {
   robot:{t:"⭐ หุ่นยนต์เชื่อม",c:"robot"},
   jp:{t:"🏭 ทุนต่างชาติ",c:"jp"},
   brand:{t:"🔧 รู้แบรนด์เครื่อง",c:"brand"},
+  paint:{t:"🎨 บอกยี่ห้อสี",c:"robot"},
+  booth:{t:"🔥 มีห้องอบสี",c:"brand"},
+  oem:{t:"🚗 ศูนย์มาตรฐานค่ายรถ",c:"jp"},
+  ins:{t:"🛡️ อู่ในเครือประกัน",c:"brand"},
   warn:{t:"⚠️ ไม่ใช่ลูกค้า",c:"warn"}
 };
+var HOT = ["robot","jp","paint","booth","oem"];
 
 function ls(k, v){
   try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); }
@@ -205,7 +210,7 @@ function visible(){
   var term = document.getElementById("q").value.trim().toLowerCase();
   return DATA.targets.filter(function(t){
     if (zone !== "all" && t.zone !== zone) return false;
-    if (hotOnly && t.f.indexOf("robot") < 0 && t.f.indexOf("jp") < 0) return false;
+    if (hotOnly && !t.f.some(function(x){ return HOT.indexOf(x) >= 0; })) return false;
     var r = DATA.results[t.id];
     if (leftOnly && r && r.status) return false;
     if (term) {
@@ -253,7 +258,7 @@ function render(){
       '<div class="area">📍 ' + t.a + '</div>' +
       (badges ? '<div class="badges">' + badges + '</div>' : '') +
       '<div class="w">' + t.w + '</div>' +
-      (t.m && t.m !== "-" ? '<div class="m">เครื่องจักร: <b>' + t.m + '</b></div>' : '') +
+      (t.m && t.m !== "-" ? '<div class="m"><b>' + t.m + '</b></div>' : '') +
       '<div class="acts">' + phone + web + '</div>' +
       '<div class="status"></div>' +
       '<textarea placeholder="โน้ต — คุยกับใคร ใช้ยี่ห้ออะไรอยู่ นัดเมื่อไหร่"></textarea>' +
