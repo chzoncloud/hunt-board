@@ -348,7 +348,7 @@ function load(quiet){
 }
 
 // ---------- บันทึก: เห็นผลทันที + ไม่ให้ชื่อค้าง ----------
-function saveFor(t, status, note, el){
+function saveFor(t, status, note, redraw){
   if (!me()) { askName(true); return; }
   var clearing = !status && !String(note || "").trim();
   var prev = DATA.results[t.id];
@@ -357,7 +357,7 @@ function saveFor(t, status, note, el){
   else DATA.results[t.id] = { status: status, note: note, who: me(), at: "เมื่อสักครู่" };
 
   pending[t.id] = 1; inflight++; syncBusy(true);
-  if (el) refreshCard(t, el); else render();
+  if (redraw) refreshCard(t); else render();
   updateBar();
 
   call({
@@ -370,11 +370,11 @@ function saveFor(t, status, note, el){
     if (!res.ok) throw new Error("");
     if (!clearing) DATA.results[t.id] = { status: status, note: note, who: me(), at: res.at };
     cacheSave();
-    if (el) refreshCard(t, el);
+    if (redraw) refreshCard(t);
     updateBar();
   }).catch(function(){
     if (prev) DATA.results[t.id] = prev; else delete DATA.results[t.id];
-    if (el) refreshCard(t, el); else render();
+    if (redraw) refreshCard(t); else render();
     updateBar();
     toast("บันทึกไม่สำเร็จ ลองใหม่", true);
   }).then(function(){
@@ -473,9 +473,13 @@ function render(){
 }
 
 // วาดใหม่เฉพาะการ์ดใบเดียว — ไม่ต้องวาดทั้งหน้า
-function refreshCard(t, el){
-  var fresh = itemEl(t, true);
-  el.parentNode.replaceChild(fresh, el);
+// ค้นหาการ์ดสดจาก data-id เสมอ กันกรณี reference เก่าถูกแทนที่ไปแล้ว
+function refreshCard(t){
+  try {
+    var cur = document.querySelector('.item[data-id="' + t.id + '"]');
+    if (!cur || !cur.parentNode) return;
+    cur.parentNode.replaceChild(itemEl(t, true), cur);
+  } catch(e) {}
 }
 
 function itemEl(t, noAnim){
@@ -488,6 +492,7 @@ function itemEl(t, noAnim){
     (r.status === BOOK ? " book" : "") +
     (r.who && r.who === my ? " mine" : "") +
     (r.status === "สั่งแล้ว" || r.status === "ไม่เอา" ? " shut" : "");
+  el.setAttribute("data-id", t.id);
   if (noAnim) el.style.animation = "none";
 
   var sub = esc(t.a);
@@ -513,7 +518,7 @@ function itemEl(t, noAnim){
       openIds = {}; openIds[t.id] = 1; render();
     } else {
       if (openIds[t.id]) delete openIds[t.id]; else openIds[t.id] = 1;
-      refreshCard(t, el);
+      refreshCard(t);
     }
   };
 
@@ -523,7 +528,7 @@ function itemEl(t, noAnim){
     if (!me()) { askName(true); return; }
     if (booked && !mineBook) { toast("🔒 " + r.who + " จองเจ้านี้ไว้แล้ว"); return; }
     star.classList.add("pop");
-    saveFor(t, mineBook ? "" : BOOK, (DATA.results[t.id] || {}).note || "", el);
+    saveFor(t, mineBook ? "" : BOOK, (DATA.results[t.id] || {}).note || "", true);
   };
   if (!isOpen) return el;
 
@@ -555,7 +560,7 @@ function itemEl(t, noAnim){
     b.textContent = v === BOOK ? "🔖 จองไว้" : v;
     b.onclick = function(){
       var cur = (DATA.results[t.id] || {}).status;
-      saveFor(t, cur === v ? "" : v, ta.value, el);
+      saveFor(t, cur === v ? "" : v, ta.value, true);
     };
     sc.appendChild(b);
   });
@@ -564,7 +569,7 @@ function itemEl(t, noAnim){
   ta.oninput = function(){
     clearTimeout(timer);
     timer = setTimeout(function(){
-      saveFor(t, (DATA.results[t.id] || {}).status || "", ta.value, el);
+      saveFor(t, (DATA.results[t.id] || {}).status || "", ta.value, true);
     }, 1400);
   };
 
