@@ -588,8 +588,10 @@ function itemEl(t, noAnim){
 }
 
 askName(false);
-if (!cacheLoad()) skeleton(6);
-load(true);
+var hadCache = cacheLoad();
+if (!hadCache) skeleton(6);
+// เปิดครั้งแรกยังไม่มีแคช ถ้าโหลดไม่ได้ต้องบอกผู้ใช้ ไม่ใช่ค้างที่โครงร่าง
+load(hadCache);
 setInterval(function(){ if (!inflight) load(true); }, 60000);
 document.addEventListener("visibilitychange", function(){
   if (!document.hidden && !inflight) load(true);
