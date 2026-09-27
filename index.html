@@ -217,9 +217,15 @@ var BADGE = {
   robot:{t:"⭐ หุ่นยนต์เชื่อม",c:"robot"}, jp:{t:"🏭 ทุนต่างชาติ",c:"jp"},
   brand:{t:"🔧 รู้แบรนด์เครื่อง",c:"brand"}, paint:{t:"🎨 บอกยี่ห้อสี",c:"robot"},
   booth:{t:"🔥 มีห้องอบสี",c:"brand"}, oem:{t:"🚗 ศูนย์มาตรฐานค่ายรถ",c:"jp"},
-  ins:{t:"🛡️ อู่ในเครือประกัน",c:"brand"}, warn:{t:"⚠️ ไม่ใช่ลูกค้า",c:"warn"}
+  ins:{t:"🛡️ อู่ในเครือประกัน",c:"brand"},
+  mold:{t:"🧩 ทำแม่พิมพ์ (ใช้ทรายละเอียดเยอะ)",c:"robot"},
+  coat:{t:"🎨 มีงานพ่นสี/ชุบ",c:"brand"},
+  jobshop:{t:"🔥 รับงานจากหลายโรงงาน",c:"robot"},
+  oemsup:{t:"🔗 ยืนยันส่งค่ายรถ",c:"jp"},
+  belt:{t:"⚠️ ใช้สายพานเป็นหลัก — เราไม่ถนัด",c:"warn"},
+  warn:{t:"⚠️ ไม่ใช่ลูกค้า",c:"warn"}
 };
-var HOT = ["robot","jp","paint","booth","oem"];
+var HOT = ["robot","jp","paint","booth","oem","mold","jobshop","oemsup"];
 
 function ls(k, v){
   try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); }
