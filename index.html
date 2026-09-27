@@ -14,81 +14,108 @@
 <meta name="apple-mobile-web-app-title" content="MKIS hunter">
 <style>
   :root{
-    --bg:#0f1115; --card:#1a1d24; --card2:#22262f; --line:#2e333d;
-    --text:#f0f2f5; --dim:#a6adbb; --gold:#e8b339;
+    --bg:#0f1115; --card:#191c23; --card2:#22262f; --line:#2a2f39;
+    --text:#f0f2f5; --dim:#9aa2b1; --gold:#e8b339;
     --ok:#3ecf7e; --no:#6b7280; --mine:#59a6ff;
+    --r:14px;
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html{-webkit-text-size-adjust:100%}
   body{margin:0;background:var(--bg);color:var(--text);
     font-family:"Segoe UI",system-ui,-apple-system,"Noto Sans Thai",sans-serif;
     font-size:18px;line-height:1.55;
-    /* กันโดน Dynamic Island / รอยบาก / แถบโฮมบัง */
-    padding-bottom:calc(30px + env(safe-area-inset-bottom, 0px))}
+    padding-bottom:calc(34px + env(safe-area-inset-bottom, 0px));
+    -webkit-font-smoothing:antialiased}
 
-  /* ---------- header แบบบาง ---------- */
-  header{position:sticky;top:0;z-index:30;background:#0f1115f2;backdrop-filter:blur(10px);
-    border-bottom:1px solid var(--line);transition:transform .22s ease;
+  header{position:sticky;top:0;z-index:30;
+    background:linear-gradient(180deg,#0f1115 62%,#0f1115e0 100%);
+    backdrop-filter:blur(14px);border-bottom:1px solid var(--line);
+    transition:transform .26s cubic-bezier(.22,.7,.3,1);
     padding:calc(10px + env(safe-area-inset-top, 0px)) calc(14px + env(safe-area-inset-right, 0px))
-            9px calc(14px + env(safe-area-inset-left, 0px))}
-  @supports (padding-top: env(safe-area-inset-top)) {
-    header{ padding-top: max(10px, env(safe-area-inset-top)); }
-  }
+            10px calc(14px + env(safe-area-inset-left, 0px))}
+  @supports (padding-top: env(safe-area-inset-top)){ header{padding-top:max(10px, env(safe-area-inset-top))} }
   header.hide{transform:translateY(-102%)}
+
   .top{display:flex;align-items:center;gap:10px}
-  .logo{width:32px;height:32px;border-radius:8px;flex:0 0 auto}
-  h1{margin:0;font-size:20px;font-weight:800;letter-spacing:-.2px;color:var(--gold);flex:1;
+  .logo{width:32px;height:32px;border-radius:9px;flex:0 0 auto;box-shadow:0 2px 10px #0006}
+  h1{margin:0;font-size:20px;font-weight:800;letter-spacing:-.3px;color:var(--gold);flex:1;
     white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .who{font-size:14px;color:var(--dim);cursor:pointer;white-space:nowrap}
+  .who{font-size:14px;color:var(--dim);cursor:pointer;white-space:nowrap;
+    padding:5px 10px;border-radius:999px;background:var(--card2);transition:background .18s}
+  .who:active{background:#2c313c}
   .who b{color:var(--gold)}
 
-  .rowline{display:flex;gap:7px;margin-top:8px;align-items:center}
+  .rowline{display:flex;gap:7px;margin-top:9px;align-items:center}
   select,input[type=search]{background:var(--card2);border:1px solid var(--line);color:var(--text);
-    border-radius:9px;padding:9px 11px;font-size:16px;font-family:inherit;min-width:0}
-  select{flex:0 0 auto;max-width:48%}
-  input[type=search]{flex:1}
-  .chips{display:flex;gap:6px;margin-top:7px;overflow-x:auto;scrollbar-width:none}
+    border-radius:10px;padding:10px 11px;font-size:16px;font-family:inherit;min-width:0;
+    transition:border-color .18s}
+  select:focus,input[type=search]:focus{outline:none;border-color:#4a5262}
+  select{flex:1 1 0;max-width:50%}
+  input[type=search]{flex:1;width:100%}
+  .chips{display:flex;gap:6px;margin-top:8px;overflow-x:auto;scrollbar-width:none;
+    padding-bottom:2px;-webkit-overflow-scrolling:touch}
   .chips::-webkit-scrollbar{display:none}
   .chip{flex:0 0 auto;background:var(--card2);border:1px solid var(--line);color:var(--dim);
-    border-radius:999px;padding:6px 13px;font-size:15px;cursor:pointer;font-family:inherit;white-space:nowrap}
+    border-radius:999px;padding:7px 14px;font-size:15px;cursor:pointer;font-family:inherit;
+    white-space:nowrap;transition:background .18s,color .18s,border-color .18s,transform .12s}
+  .chip:active{transform:scale(.95)}
   .chip.on{background:var(--gold);color:#1a1200;border-color:var(--gold);font-weight:700}
   .chip.mineon{background:var(--mine);color:#04182e;border-color:var(--mine);font-weight:700}
 
-  .bar{font-size:15px;color:#cfd6e0;background:#151922;border-bottom:1px solid var(--line);
-    padding:9px calc(14px + env(safe-area-inset-right, 0px)) 9px calc(14px + env(safe-area-inset-left, 0px))}
+  .bar{font-size:15px;color:#cfd6e0;background:#141820;border-bottom:1px solid var(--line);
+    padding:10px calc(14px + env(safe-area-inset-right,0px)) 10px calc(14px + env(safe-area-inset-left,0px));
+    display:flex;align-items:center;gap:8px}
   .bar b{color:var(--gold)}
+  .bar .sync{width:7px;height:7px;border-radius:50%;background:#39415080;flex:0 0 auto;transition:background .3s}
+  .bar .sync.busy{background:var(--gold);animation:pulse 1s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
 
-  /* ---------- รายการแบบย่อ ---------- */
-  main{padding:8px calc(12px + env(safe-area-inset-right, 0px)) 8px calc(12px + env(safe-area-inset-left, 0px))}
-  .item{background:var(--card);border:1px solid var(--line);border-radius:12px;margin-bottom:8px;overflow:hidden}
-  .item.open{border-color:#4a5262}
-  .item.mine{border-left:4px solid var(--mine)}
-  .item.book{border-left:4px solid var(--gold)}
-  .item.shut{opacity:.42}
+  main{padding:9px calc(12px + env(safe-area-inset-right,0px)) 9px calc(12px + env(safe-area-inset-left,0px))}
 
-  .head{display:flex;align-items:center;gap:10px;padding:11px 12px;cursor:pointer}
-  .dot{width:11px;height:11px;border-radius:50%;flex:0 0 auto;background:#3a4150}
+  .item{background:var(--card);border:1px solid var(--line);border-radius:var(--r);
+    margin-bottom:9px;overflow:hidden;
+    transition:border-color .2s,opacity .25s,background .2s;
+    animation:rise .26s cubic-bezier(.22,.7,.3,1) both}
+  @keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .item.open{border-color:#454d5c;background:#1c2028}
+  .item.mine{box-shadow:inset 3px 0 0 var(--mine)}
+  .item.book{box-shadow:inset 3px 0 0 var(--gold)}
+  .item.shut{opacity:.4}
+
+  .head{display:flex;align-items:center;gap:10px;padding:11px 12px;cursor:pointer;
+    transition:background .16s}
+  .head:active{background:#20242c}
+  .dot{width:10px;height:10px;border-radius:50%;flex:0 0 auto;background:#39414f;transition:background .2s}
   .dot.talked{background:var(--gold)} .dot.sample{background:#7fd4ff}
   .dot.order{background:var(--ok)} .dot.miss{background:var(--no)}
-  .dot.reject{background:#8a3a3a} .dot.book{background:var(--gold);box-shadow:0 0 0 3px #e8b33933}
+  .dot.reject{background:#8a3a3a}
+  .dot.book{background:var(--gold);box-shadow:0 0 0 3px #e8b33930}
   .ttl{flex:1;min-width:0}
   .ttl .n{font-size:17px;font-weight:700;line-height:1.3;
     display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
   .ttl .sub{font-size:13.5px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .ttl .sub .tag{color:var(--gold)}
   .ttl .sub .by{color:var(--mine)}
-  .tel{flex:0 0 auto;background:#1e3a2a;border:1px solid #2f5a42;border-radius:9px;
-    padding:9px 12px;font-size:17px;text-decoration:none;line-height:1}
-  .tel.off{background:var(--card2);border-color:var(--line);opacity:.5}
-  .star{flex:0 0 auto;background:var(--card2);border:1px solid var(--line);border-radius:9px;
-    padding:8px 11px;font-size:18px;line-height:1;cursor:pointer;font-family:inherit;color:#5a6270}
+  .tel{flex:0 0 auto;background:#1c3527;border:1px solid #2d5440;border-radius:10px;
+    padding:9px 12px;font-size:17px;text-decoration:none;line-height:1;transition:transform .12s,background .16s}
+  .tel:active{transform:scale(.92);background:#24462f}
+  .tel.off{background:var(--card2);border-color:var(--line);opacity:.45}
+  .star{flex:0 0 auto;background:var(--card2);border:1px solid var(--line);border-radius:10px;
+    padding:8px 11px;font-size:18px;line-height:1;cursor:pointer;font-family:inherit;color:#5a6270;
+    transition:transform .16s cubic-bezier(.16,1,.3,1),background .18s,color .18s,border-color .18s}
+  .star:active{transform:scale(.88)}
+  .star.pop{animation:pop .42s cubic-bezier(.16,1,.3,1)}
+  @keyframes pop{0%{transform:scale(1)}30%{transform:scale(1.18)}100%{transform:scale(1)}}
   .star.me{background:#3b2f00;border-color:#8a6b12;color:#ffd35c}
-  .star.other{background:#2a2438;border-color:#4b3f6b;color:#b9a6ff}
+  .star.other{background:#26223a;border-color:#443b66;color:#b3a3ff}
 
-  .detail{padding:0 12px 12px;border-top:1px solid #262b35}
-  .w{font-size:15.5px;color:#d5dae2;margin:10px 0 4px}
+  .detail{padding:0 12px 12px;border-top:1px solid #23272f;
+    animation:fade .22s ease both}
+  @keyframes fade{from{opacity:0}to{opacity:1}}
+  .w{font-size:15.5px;color:#d2d8e0;margin:10px 0 4px}
   .m{font-size:14.5px;color:var(--dim);margin-bottom:10px}
   .m b{color:#ffd77a;font-weight:600}
-  .badges{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px}
+  .badges{display:flex;gap:5px;flex-wrap:wrap;margin:10px 0}
   .b{font-size:13px;padding:3px 9px;border-radius:999px;font-weight:600}
   .b.robot{background:#3b2f00;color:#ffd35c}
   .b.jp{background:#3a1420;color:#ff9db0}
@@ -96,32 +123,54 @@
   .b.warn{background:#3d1414;color:#ff8f8f}
   .links{display:flex;gap:8px;margin-bottom:10px}
   .links a{background:var(--card2);color:var(--dim);border:1px solid var(--line);
-    padding:8px 14px;border-radius:9px;text-decoration:none;font-size:15px}
+    padding:9px 14px;border-radius:10px;text-decoration:none;font-size:15px}
   .status{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:9px}
   .s{flex:1 1 auto;background:transparent;border:1px solid var(--line);color:var(--dim);
-    border-radius:8px;padding:9px 4px;font-size:14.5px;cursor:pointer;font-family:inherit;min-width:64px}
+    border-radius:9px;padding:9px 4px;font-size:14.5px;cursor:pointer;font-family:inherit;min-width:64px;
+    transition:background .16s,color .16s,border-color .16s,transform .12s}
+  .s:active{transform:scale(.96)}
   .s.on{background:var(--gold);color:#1a1200;border-color:var(--gold);font-weight:700}
   .s.on[data-v="ไม่ติด"]{background:var(--no);color:#fff;border-color:var(--no)}
   .s.on[data-v="สั่งแล้ว"]{background:var(--ok);color:#04220f;border-color:var(--ok)}
   .s.on[data-v="ไม่เอา"]{background:#4a2020;color:#ff9f9f;border-color:#6b2c2c}
   textarea{width:100%;background:var(--card2);border:1px solid var(--line);color:var(--text);
-    border-radius:9px;padding:10px 12px;font-size:15.5px;font-family:inherit;resize:vertical;min-height:54px}
-  .stamp{font-size:13.5px;color:var(--dim);margin-top:7px}
+    border-radius:10px;padding:10px 12px;font-size:15.5px;font-family:inherit;resize:vertical;
+    min-height:54px;transition:border-color .18s}
+  textarea:focus{outline:none;border-color:#4a5262}
+  .stamp{font-size:13.5px;color:var(--dim);margin-top:7px;min-height:19px}
   .stamp b{color:#8fd6a6}
-  .saving{color:var(--gold)} .err{color:#ff9f9f}
-  .empty,.load{text-align:center;color:var(--dim);padding:36px 16px;font-size:17px}
+  .saving{color:var(--gold)} .err{color:#ff8f8f}
 
+  /* โครงร่างตอนโหลด ทำให้รู้สึกเร็วขึ้น */
+  .sk{background:var(--card);border:1px solid var(--line);border-radius:var(--r);
+    height:66px;margin-bottom:9px;position:relative;overflow:hidden}
+  .sk::after{content:"";position:absolute;inset:0;
+    background:linear-gradient(90deg,transparent,#ffffff0a 45%,transparent);
+    animation:shim 1.15s infinite}
+  @keyframes shim{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
+
+  .empty{text-align:center;color:var(--dim);padding:40px 16px;font-size:17px}
   .more{display:block;width:100%;background:var(--card2);border:1px solid var(--line);color:var(--text);
-    border-radius:11px;padding:13px;font-size:17px;font-family:inherit;cursor:pointer;margin:4px 0 10px}
+    border-radius:12px;padding:13px;font-size:17px;font-family:inherit;cursor:pointer;margin:4px 0 10px;
+    transition:transform .12s}
+  .more:active{transform:scale(.98)}
 
-  .mask{position:fixed;inset:0;z-index:99;background:#0f1115f2;display:flex;
-    align-items:center;justify-content:center;padding:24px}
-  .ask{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px;width:100%;max-width:400px}
+  .toast{position:fixed;left:50%;bottom:calc(22px + env(safe-area-inset-bottom,0px));
+    transform:translate(-50%,16px);background:#232833;color:var(--text);
+    border:1px solid var(--line);border-radius:999px;padding:11px 20px;font-size:15.5px;
+    z-index:60;opacity:0;pointer-events:none;transition:opacity .22s,transform .22s;
+    box-shadow:0 10px 30px #0008}
+  .toast.show{opacity:1;transform:translate(-50%,0)}
+
+  .mask{position:fixed;inset:0;z-index:99;background:#0f1115f5;display:flex;
+    align-items:center;justify-content:center;padding:24px;animation:fade .2s ease both}
+  .ask{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:26px;
+    width:100%;max-width:400px;box-shadow:0 20px 60px #000a}
   .ask h2{margin:0 0 6px;font-size:22px;color:var(--gold)}
   .ask p{margin:0 0 16px;font-size:15.5px;color:var(--dim)}
   .ask input{width:100%;background:var(--card2);border:1px solid var(--line);color:var(--text);
-    border-radius:10px;padding:13px 15px;font-size:18px;font-family:inherit;margin-bottom:14px}
-  .ask button{width:100%;background:var(--gold);color:#1a1200;border:0;border-radius:10px;
+    border-radius:11px;padding:13px 15px;font-size:18px;font-family:inherit;margin-bottom:14px}
+  .ask button{width:100%;background:var(--gold);color:#1a1200;border:0;border-radius:11px;
     padding:14px;font-size:17px;font-weight:800;font-family:inherit;cursor:pointer}
 </style>
 </head>
@@ -149,8 +198,9 @@
   </div>
 </header>
 
-<div class="bar" id="bar">กำลังโหลด…</div>
-<main id="list"><div class="load">กำลังดึงข้อมูล…</div></main>
+<div class="bar" id="bar"><span class="sync" id="sync"></span><span id="barTxt">กำลังโหลด…</span></div>
+<main id="list"></main>
+<div class="toast" id="toast"></div>
 
 <script>
 var API = "https://script.google.com/macros/s/AKfycbzW3T6Lhi1Ez1CcNUHOFESSmRA30m02XfniDAkJ87CvC_2n2z3C55e5ndDXRh5BJKzuXw/exec";
@@ -158,8 +208,7 @@ var API = "https://script.google.com/macros/s/AKfycbzW3T6Lhi1Ez1CcNUHOFESSmRA30m
 var DATA = { targets: [], results: {} };
 var group = "all", zone = "all";
 var fMine = false, fBook = false, fLeft = false, fHot = false, expandAll = false;
-var shown = 40;                       // แสดงทีละ 40 แล้วค่อยกดโหลดเพิ่ม
-var openIds = {};                     // การ์ดที่กางอยู่
+var shown = 40, openIds = {}, pending = {}, inflight = 0;
 
 var BOOK = "จองไว้";
 var STATUS = [BOOK, "ไม่ติด", "คุยแล้ว", "ส่งตัวอย่าง", "สั่งแล้ว", "ไม่เอา"];
@@ -177,6 +226,21 @@ function ls(k, v){
   catch(e){ return null; }
 }
 function me(){ return ls("mb_who") || ""; }
+function tel(p){ return String(p || "").replace(/[^0-9+]/g, ""); }
+function esc(s){ return String(s == null ? "" : s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+
+var toastTimer = null;
+function toast(msg, isErr){
+  var t = document.getElementById("toast");
+  t.innerHTML = isErr ? '<span class="err">' + esc(msg) + '</span>' : esc(msg);
+  t.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(function(){ t.classList.remove("show"); }, 2200);
+}
+function syncBusy(on){
+  var s = document.getElementById("sync");
+  if (on) s.classList.add("busy"); else s.classList.remove("busy");
+}
 
 function askName(force){
   if (!force && me()) return;
@@ -189,28 +253,30 @@ function askName(force){
   document.body.appendChild(mask);
   var input = mask.querySelector("#nameIn");
   input.value = me();
-  setTimeout(function(){ try { input.focus(); } catch(e){} }, 100);
+  setTimeout(function(){ try { input.focus(); } catch(e){} }, 120);
   function done(){
     ls("mb_who", (input.value || "").trim() || "ไม่ระบุชื่อ");
-    document.getElementById("who").innerHTML = "👤 <b>" + me() + "</b>";
+    paintWho();
     document.body.removeChild(mask);
     render();
   }
   mask.querySelector("#nameOk").onclick = done;
   input.onkeydown = function(e){ if (e.key === "Enter") done(); };
 }
-
-document.getElementById("who").innerHTML = "👤 <b>" + (me() || "ใส่ชื่อ") + "</b>";
+function paintWho(){
+  document.getElementById("who").innerHTML = "👤 <b>" + esc(me() || "ใส่ชื่อ") + "</b>";
+}
+paintWho();
 document.getElementById("who").onclick = function(){ askName(true); };
 
-function chip(id, flagName){
+function chip(id, name){
   var el = document.getElementById(id);
   el.onclick = function(){
-    if (flagName === "mine") { fMine = !fMine; el.className = "chip" + (fMine ? " mineon" : ""); }
-    if (flagName === "book") { fBook = !fBook; el.className = "chip" + (fBook ? " on" : ""); }
-    if (flagName === "left") { fLeft = !fLeft; el.className = "chip" + (fLeft ? " on" : ""); }
-    if (flagName === "hot")  { fHot  = !fHot;  el.className = "chip" + (fHot  ? " on" : ""); }
-    if (flagName === "open") {
+    if (name === "mine"){ fMine = !fMine; el.className = "chip" + (fMine ? " mineon" : ""); }
+    if (name === "book"){ fBook = !fBook; el.className = "chip" + (fBook ? " on" : ""); }
+    if (name === "left"){ fLeft = !fLeft; el.className = "chip" + (fLeft ? " on" : ""); }
+    if (name === "hot"){  fHot  = !fHot;  el.className = "chip" + (fHot  ? " on" : ""); }
+    if (name === "open"){
       expandAll = !expandAll; el.className = "chip" + (expandAll ? " on" : "");
       el.textContent = expandAll ? "ย่อทั้งหมด" : "กางทั้งหมด";
     }
@@ -218,14 +284,17 @@ function chip(id, flagName){
   };
 }
 chip("cMine","mine"); chip("cBook","book"); chip("cLeft","left"); chip("cHot","hot"); chip("cOpen","open");
-document.getElementById("q").oninput = function(){ shown = 40; render(); };
 
-// ซ่อน header ตอนเลื่อนลง โชว์ตอนเลื่อนขึ้น
+var qTimer = null;
+document.getElementById("q").oninput = function(){
+  clearTimeout(qTimer);
+  qTimer = setTimeout(function(){ shown = 40; render(); }, 180);
+};
+
 var lastY = 0;
 window.addEventListener("scroll", function(){
-  var y = window.scrollY || 0;
-  var hdr = document.getElementById("hdr");
-  if (y > 140 && y > lastY + 6) hdr.classList.add("hide");
+  var y = window.scrollY || 0, hdr = document.getElementById("hdr");
+  if (y > 150 && y > lastY + 6) hdr.classList.add("hide");
   else if (y < lastY - 6 || y < 90) hdr.classList.remove("hide");
   lastY = y;
 }, { passive: true });
@@ -237,56 +306,81 @@ function call(params){
   return fetch(API + "?" + qs).then(function(r){ return r.json(); });
 }
 
-// บันทึกแบบมองเห็นผลทันที (ไม่ต้องรอเซิร์ฟเวอร์ตอบ)
-function saveFor(t, status, note, onFail){
-  if (!me()) { askName(true); return; }
-  var prev = DATA.results[t.id];
-  DATA.results[t.id] = { status: status, note: note, who: me(), at: "กำลังบันทึก…" };
-  render();
-  call({ action:"save", id:t.id, name:t.n, status:status, note:note, who:me() })
-    .then(function(res){
-      if (!res.ok) throw new Error("");
-      DATA.results[t.id] = { status: status, note: note, who: me(), at: res.at };
-      cacheSave(); render();
-    })
-    .catch(function(){
-      if (prev) DATA.results[t.id] = prev; else delete DATA.results[t.id];
-      render();
-      if (onFail) onFail(); else alertBar("บันทึกไม่สำเร็จ ลองใหม่อีกครั้ง");
-    });
-}
-function alertBar(msg){
-  var b = document.getElementById("bar");
-  var old = b.innerHTML;
-  b.innerHTML = '<span class="err">' + msg + '</span>';
-  setTimeout(function(){ b.innerHTML = old; }, 2500);
-}
-
-// ---------- แคชในเครื่อง: เปิดแอปแล้วเห็นทันที ไม่ต้องรอ ----------
-var CACHE_KEY = "mb_cache_v1";
-function cacheSave(){ try { ls(CACHE_KEY, JSON.stringify(DATA)); } catch(e){} }
+// ---------- แคชในเครื่อง ----------
+var CK = "mb_cache_v2";
+function cacheSave(){ try { ls(CK, JSON.stringify(DATA)); } catch(e){} }
 function cacheLoad(){
   try {
-    var raw = ls(CACHE_KEY);
-    if (!raw) return false;
+    var raw = ls(CK); if (!raw) return false;
     var d = JSON.parse(raw);
     if (!d || !d.targets || !d.targets.length) return false;
-    DATA = d; buildSelects(); render();
-    return true;
+    DATA = d; buildSelects(); render(); return true;
   } catch(e){ return false; }
 }
 
+function skeleton(n){
+  var h = "";
+  for (var i = 0; i < n; i++) h += '<div class="sk"></div>';
+  document.getElementById("list").innerHTML = h;
+}
+
 function load(quiet){
-  call({ action: "list", t: Date.now() })
+  syncBusy(true);
+  return call({ action: "list", t: Date.now() })
     .then(function(d){
       if (!d.ok) throw new Error(d.error || "");
-      DATA = d; cacheSave(); buildSelects(); render();
+      // ถ้ามีรายการที่กำลังเซฟอยู่ ให้ของในเครื่องชนะ กันรีเฟรชมาทับ
+      var keep = {};
+      Object.keys(pending).forEach(function(id){ keep[id] = DATA.results[id]; });
+      DATA = d;
+      Object.keys(keep).forEach(function(id){
+        if (keep[id]) DATA.results[id] = keep[id]; else delete DATA.results[id];
+      });
+      cacheSave(); buildSelects(); render();
     })
     .catch(function(e){
-      if (quiet) return;   // มีแคชอยู่แล้ว ไม่ต้องรบกวน
-      document.getElementById("list").innerHTML =
-        '<div class="empty err">โหลดไม่ได้: ' + (e.message || e) + '<br><br>เช็คเน็ตแล้วลองใหม่</div>';
-    });
+      if (!quiet) {
+        document.getElementById("list").innerHTML =
+          '<div class="empty"><span class="err">โหลดไม่ได้</span><br><br>เช็คเน็ตแล้วลองใหม่อีกครั้ง</div>';
+      } else toast("อัปเดตไม่สำเร็จ ใช้ข้อมูลที่บันทึกไว้", true);
+    })
+    .then(function(){ syncBusy(false); });
+}
+
+// ---------- บันทึก: เห็นผลทันที + ไม่ให้ชื่อค้าง ----------
+function saveFor(t, status, note, el){
+  if (!me()) { askName(true); return; }
+  var clearing = !status && !String(note || "").trim();
+  var prev = DATA.results[t.id];
+
+  if (clearing) delete DATA.results[t.id];
+  else DATA.results[t.id] = { status: status, note: note, who: me(), at: "เมื่อสักครู่" };
+
+  pending[t.id] = 1; inflight++; syncBusy(true);
+  if (el) refreshCard(t, el); else render();
+  updateBar();
+
+  call({
+    action: "save", id: t.id,
+    name: clearing ? "" : t.n,
+    status: clearing ? "" : status,
+    note: clearing ? "" : note,
+    who: clearing ? "" : me()
+  }).then(function(res){
+    if (!res.ok) throw new Error("");
+    if (!clearing) DATA.results[t.id] = { status: status, note: note, who: me(), at: res.at };
+    cacheSave();
+    if (el) refreshCard(t, el);
+    updateBar();
+  }).catch(function(){
+    if (prev) DATA.results[t.id] = prev; else delete DATA.results[t.id];
+    if (el) refreshCard(t, el); else render();
+    updateBar();
+    toast("บันทึกไม่สำเร็จ ลองใหม่", true);
+  }).then(function(){
+    delete pending[t.id]; inflight--;
+    if (inflight <= 0) { inflight = 0; syncBusy(false); }
+  });
 }
 
 function uniq(key, rows){
@@ -294,16 +388,15 @@ function uniq(key, rows){
   rows.forEach(function(t){ if (t[key] && !seen[t[key]]) { seen[t[key]] = 1; out.push(t[key]); } });
   return out;
 }
-
 function buildSelects(){
-  var sg = document.getElementById("selGroup"), sz = document.getElementById("selZone");
+  var sg = document.getElementById("selGroup");
   if (!sg.getAttribute("data-built")) {
     sg.setAttribute("data-built", "1");
     var gs = uniq("group", DATA.targets);
     sg.innerHTML = '<option value="all">ทุกประเภท (' + DATA.targets.length + ')</option>' +
       gs.map(function(g){
         var c = DATA.targets.filter(function(t){ return t.group === g; }).length;
-        return '<option value="' + g + '">' + g + ' (' + c + ')</option>';
+        return '<option value="' + esc(g) + '">' + esc(g) + ' (' + c + ')</option>';
       }).join("");
     sg.onchange = function(){ group = this.value; zone = "all"; shown = 40; fillZones(); render(); };
   }
@@ -316,7 +409,7 @@ function fillZones(){
   sz.innerHTML = '<option value="all">ทุกโซน (' + rows.length + ')</option>' +
     zs.map(function(z){
       var c = rows.filter(function(t){ return t.zone === z; }).length;
-      return '<option value="' + z + '">' + z + ' (' + c + ')</option>';
+      return '<option value="' + esc(z) + '">' + esc(z) + ' (' + c + ')</option>';
     }).join("");
   sz.value = zone;
   sz.onchange = function(){ zone = this.value; shown = 40; render(); };
@@ -324,12 +417,12 @@ function fillZones(){
 
 function visible(){
   var term = document.getElementById("q").value.trim().toLowerCase();
-  var myName = me();
+  var my = me();
   return DATA.targets.filter(function(t){
     if (group !== "all" && t.group !== group) return false;
     if (zone !== "all" && t.zone !== zone) return false;
     var r = DATA.results[t.id] || {};
-    if (fMine && r.who !== myName) return false;
+    if (fMine && r.who !== my) return false;
     if (fBook && r.status !== BOOK) return false;
     if (fLeft && r.status) return false;
     if (fHot && !t.f.some(function(x){ return HOT.indexOf(x) >= 0; })) return false;
@@ -341,11 +434,8 @@ function visible(){
   });
 }
 
-function render(){
-  var rows = visible(), list = document.getElementById("list");
-  var myName = me();
-  list.innerHTML = "";
-
+function updateBar(){
+  var my = me();
   var all = DATA.targets.filter(function(t){ return group === "all" || t.group === group; });
   var done = 0, mine = 0, booked = 0, c = {};
   all.forEach(function(t){
@@ -353,79 +443,88 @@ function render(){
     if (r && r.status) {
       done++; c[r.status] = (c[r.status] || 0) + 1;
       if (r.status === BOOK) booked++;
-      if (r.who === myName) mine++;
+      if (r.who === my) mine++;
     }
   });
-  document.getElementById("bar").innerHTML =
+  document.getElementById("barTxt").innerHTML =
     "เข้าไปแล้ว <b>" + done + "</b>/" + all.length +
-    " · จองไว้ <b>" + booked + "</b>" +
-    " · คุยแล้ว <b>" + (c["คุยแล้ว"] || 0) + "</b>" +
+    " · จอง <b>" + booked + "</b>" +
+    " · คุย <b>" + (c["คุยแล้ว"] || 0) + "</b>" +
     " · ตัวอย่าง <b>" + (c["ส่งตัวอย่าง"] || 0) + "</b>" +
-    " · สั่งแล้ว <b>" + (c["สั่งแล้ว"] || 0) + "</b>" +
-    (myName ? " · ของฉัน <b>" + mine + "</b>" : "") +
-    " &nbsp;|&nbsp; แสดง " + Math.min(shown, rows.length) + "/" + rows.length;
+    " · สั่ง <b>" + (c["สั่งแล้ว"] || 0) + "</b>" +
+    (my ? " · ของฉัน <b>" + mine + "</b>" : "");
+}
 
+function render(){
+  var rows = visible(), list = document.getElementById("list");
+  updateBar();
+  list.innerHTML = "";
   if (!rows.length) { list.innerHTML = '<div class="empty">ไม่มีรายการตามที่กรอง</div>'; return; }
-
-  rows.slice(0, shown).forEach(function(t){ list.appendChild(itemEl(t, myName)); });
-
+  var frag = document.createDocumentFragment();
+  rows.slice(0, shown).forEach(function(t){ frag.appendChild(itemEl(t)); });
   if (rows.length > shown) {
     var b = document.createElement("button");
     b.className = "more";
-    b.textContent = "โหลดเพิ่มอีก " + Math.min(40, rows.length - shown) + " รายการ (เหลือ " + (rows.length - shown) + ")";
+    b.textContent = "โหลดเพิ่มอีก " + Math.min(40, rows.length - shown) + " (เหลือ " + (rows.length - shown) + ")";
     b.onclick = function(){ shown += 40; render(); };
-    list.appendChild(b);
+    frag.appendChild(b);
   }
+  list.appendChild(frag);
 }
 
-function itemEl(t, myName){
+// วาดใหม่เฉพาะการ์ดใบเดียว — ไม่ต้องวาดทั้งหน้า
+function refreshCard(t, el){
+  var fresh = itemEl(t, true);
+  el.parentNode.replaceChild(fresh, el);
+}
+
+function itemEl(t, noAnim){
   var r = DATA.results[t.id] || {};
+  var my = me();
   var isOpen = expandAll || openIds[t.id];
   var el = document.createElement("div");
   el.className = "item" +
     (isOpen ? " open" : "") +
     (r.status === BOOK ? " book" : "") +
-    (r.who && r.who === myName ? " mine" : "") +
+    (r.who && r.who === my ? " mine" : "") +
     (r.status === "สั่งแล้ว" || r.status === "ไม่เอา" ? " shut" : "");
+  if (noAnim) el.style.animation = "none";
 
-  var sub = t.a;
-  if (r.status) sub = '<span class="tag">' + r.status + '</span>' +
-    (r.who ? ' <span class="by">· ' + r.who + '</span>' : '') + ' · ' + t.a;
+  var sub = esc(t.a);
+  if (r.status) sub = '<span class="tag">' + esc(r.status) + '</span>' +
+    (r.who ? ' <span class="by">· ' + esc(r.who) + '</span>' : '') + ' · ' + esc(t.a);
 
-  var tel = t.p
-    ? '<a class="tel" href="tel:' + String(t.p).replace(/[^0-9+]/g,"") + '" onclick="event.stopPropagation()">📞</a>'
-    : '<span class="tel off">📞</span>';
-
-  var booked = r.status === BOOK;
-  var mineBook = booked && r.who === myName;
+  var booked = r.status === BOOK, mineBook = booked && r.who === my;
   var starCls = mineBook ? "star me" : (booked ? "star other" : "star");
 
   el.innerHTML =
     '<div class="head">' +
       '<span class="dot ' + (DOT[r.status] || "") + '"></span>' +
-      '<span class="ttl"><div class="n">' + t.n + '</div><div class="sub">' + sub + '</div></span>' +
+      '<span class="ttl"><div class="n">' + esc(t.n) + '</div><div class="sub">' + sub + '</div></span>' +
       '<button class="' + starCls + '">' + (booked ? "★" : "☆") + '</button>' +
-      tel +
+      (t.p ? '<a class="tel" href="tel:' + tel(t.p) + '">📞</a>' : '<span class="tel off">📞</span>') +
     '</div>';
 
-  el.querySelector(".star").onclick = function(ev){
+  el.querySelector(".head").onclick = function(ev){
+    if (ev.target.closest(".tel") || ev.target.closest(".star")) return;
+    if (expandAll) {
+      expandAll = false;
+      var c = document.getElementById("cOpen"); c.className = "chip"; c.textContent = "กางทั้งหมด";
+      openIds = {}; openIds[t.id] = 1; render();
+    } else {
+      if (openIds[t.id]) delete openIds[t.id]; else openIds[t.id] = 1;
+      refreshCard(t, el);
+    }
+  };
+
+  var star = el.querySelector(".star");
+  star.onclick = function(ev){
     ev.stopPropagation();
     if (!me()) { askName(true); return; }
-    if (booked && !mineBook) {           // คนอื่นจองอยู่ — ไม่แย่ง
-      var s = el.querySelector(".sub");
-      s.innerHTML = '<span class="by">🔒 ' + r.who + ' จองเจ้านี้ไว้แล้ว</span>';
-      setTimeout(render, 1800);
-      return;
-    }
-    saveFor(t, mineBook ? "" : BOOK, (DATA.results[t.id] || {}).note || "");
+    if (booked && !mineBook) { toast("🔒 " + r.who + " จองเจ้านี้ไว้แล้ว"); return; }
+    star.classList.add("pop");
+    saveFor(t, mineBook ? "" : BOOK, (DATA.results[t.id] || {}).note || "", el);
   };
-
-  el.querySelector(".head").onclick = function(){
-    if (expandAll) { expandAll = false; document.getElementById("cOpen").className = "chip"; document.getElementById("cOpen").textContent = "กางทั้งหมด"; openIds = {}; openIds[t.id] = 1; }
-    else { if (openIds[t.id]) delete openIds[t.id]; else openIds[t.id] = 1; }
-    render();
-  };
-
   if (!isOpen) return el;
 
   var badges = "";
@@ -434,30 +533,19 @@ function itemEl(t, myName){
   var d = document.createElement("div");
   d.className = "detail";
   d.innerHTML =
-    (badges ? '<div class="badges" style="margin-top:10px">' + badges + '</div>' : '') +
-    '<div class="w">' + t.w + '</div>' +
-    (t.m && t.m !== "-" ? '<div class="m"><b>' + t.m + '</b></div>' : '') +
+    (badges ? '<div class="badges">' + badges + '</div>' : '') +
+    '<div class="w">' + esc(t.w) + '</div>' +
+    (t.m && t.m !== "-" ? '<div class="m"><b>' + esc(t.m) + '</b></div>' : '') +
     '<div class="links">' +
-      (t.p ? '<a href="tel:' + String(t.p).replace(/[^0-9+]/g,"") + '">📞 ' + t.p + '</a>' : '<a style="opacity:.5">ยังไม่มีเบอร์</a>') +
-      (t.u ? '<a href="' + t.u + '" target="_blank" rel="noopener">เว็บ</a>' : '') +
-    '</div>' +
-    '<div class="status"></div>' +
+      (t.p ? '<a href="tel:' + tel(t.p) + '">📞 ' + esc(t.p) + '</a>' : '<a style="opacity:.45">ยังไม่มีเบอร์</a>') +
+      (t.u ? '<a href="' + esc(t.u) + '" target="_blank" rel="noopener">เว็บ</a>' : '') +
+    '</div><div class="status"></div>' +
     '<textarea placeholder="โน้ต — คุยกับใคร ใช้ยี่ห้ออะไรอยู่ นัดเมื่อไหร่"></textarea>' +
     '<div class="stamp"></div>';
 
-  var stamp = d.querySelector(".stamp");
   var ta = d.querySelector("textarea");
   ta.value = r.note || "";
-  function showStamp(){
-    var rr = DATA.results[t.id] || {};
-    stamp.innerHTML = rr.who ? ("บันทึกโดย <b>" + rr.who + "</b> · " + (rr.at || "")) : "";
-  }
-  showStamp();
-
-  function save(status, note){
-    stamp.innerHTML = '<span class="saving">กำลังบันทึก…</span>';
-    saveFor(t, status, note, function(){ stamp.innerHTML = '<span class="err">บันทึกไม่สำเร็จ ลองใหม่</span>'; });
-  }
+  d.querySelector(".stamp").innerHTML = r.who ? ("บันทึกโดย <b>" + esc(r.who) + "</b> · " + esc(r.at || "")) : "";
 
   var sc = d.querySelector(".status");
   STATUS.forEach(function(v){
@@ -467,7 +555,7 @@ function itemEl(t, myName){
     b.textContent = v === BOOK ? "🔖 จองไว้" : v;
     b.onclick = function(){
       var cur = (DATA.results[t.id] || {}).status;
-      save(cur === v ? "" : v, ta.value);
+      saveFor(t, cur === v ? "" : v, ta.value, el);
     };
     sc.appendChild(b);
   });
@@ -475,7 +563,9 @@ function itemEl(t, myName){
   var timer = null;
   ta.oninput = function(){
     clearTimeout(timer);
-    timer = setTimeout(function(){ save((DATA.results[t.id] || {}).status || "", ta.value); }, 1500);
+    timer = setTimeout(function(){
+      saveFor(t, (DATA.results[t.id] || {}).status || "", ta.value, el);
+    }, 1400);
   };
 
   el.appendChild(d);
@@ -483,9 +573,12 @@ function itemEl(t, myName){
 }
 
 askName(false);
-var hadCache = cacheLoad();          // เห็นข้อมูลทันทีจากแคชในเครื่อง
-load(hadCache);                      // แล้วค่อยดึงของใหม่มาทับเงียบๆ
-setInterval(function(){ load(true); }, 45000);
+if (!cacheLoad()) skeleton(6);
+load(true);
+setInterval(function(){ if (!inflight) load(true); }, 60000);
+document.addEventListener("visibilitychange", function(){
+  if (!document.hidden && !inflight) load(true);
+});
 </script>
 </body>
 </html>
