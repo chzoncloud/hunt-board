@@ -396,14 +396,18 @@ function uniq(key, rows){
 }
 function buildSelects(){
   var sg = document.getElementById("selGroup");
-  if (!sg.getAttribute("data-built")) {
-    sg.setAttribute("data-built", "1");
-    var gs = uniq("group", DATA.targets);
+  var gs = uniq("group", DATA.targets);
+  // สร้างใหม่เมื่อรายชื่อประเภทหรือจำนวนเปลี่ยน (เช่น มีแท็บใหม่ในชีท)
+  var sig = DATA.targets.length + "|" + gs.join("|");
+  if (sg.getAttribute("data-sig") !== sig) {
+    sg.setAttribute("data-sig", sig);
     sg.innerHTML = '<option value="all">ทุกประเภท (' + DATA.targets.length + ')</option>' +
       gs.map(function(g){
         var c = DATA.targets.filter(function(t){ return t.group === g; }).length;
         return '<option value="' + esc(g) + '">' + esc(g) + ' (' + c + ')</option>';
       }).join("");
+    if (gs.indexOf(group) < 0) group = "all";   // ประเภทที่เลือกไว้หายไป ให้กลับไปทุกประเภท
+    sg.value = group;
     sg.onchange = function(){ group = this.value; zone = "all"; shown = 40; fillZones(); render(); };
   }
   fillZones();
